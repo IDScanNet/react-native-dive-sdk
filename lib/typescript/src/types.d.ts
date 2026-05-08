@@ -19,7 +19,16 @@ export interface DiveTheme {
 }
 export type DiveRealFaceMode = 'auto' | 'all' | 'none';
 export type DiveStepType = 'front' | 'back' | 'pdf' | 'mrz' | 'face';
-export type DiveDocumentType = 'DL' | 'ID' | 'Passport' | 'PassportCard' | 'GreenCard' | 'InternationalId';
+/**
+ * Document type accepted by `launchDive`.
+ *
+ * `'ID'` is the canonical value going forward. `'DL'` is kept as a
+ * backwards-compatible alias for existing integrators — both names work on
+ * iOS and Android (the wrapper maps them to the appropriate native enum on
+ * Android; the iOS SDK accepts either). Pick one per `documentTypes` entry —
+ * you cannot configure the same flow as both DL and ID simultaneously.
+ */
+export type DiveDocumentType = 'ID' | 'DL' | 'Passport' | 'PassportCard' | 'GreenCard' | 'InternationalId';
 export interface DiveCaptureStepMode {
     uploader: boolean;
     video: boolean;
