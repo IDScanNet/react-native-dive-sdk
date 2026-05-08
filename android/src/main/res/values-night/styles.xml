@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DiveSDK" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/diveSdkColorPrimary</item>
+        <item name="colorPrimaryDark">@color/diveSdkColorPrimaryDark</item>
+        <item name="colorPrimaryVariant">@color/diveSdkColorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/diveSdkColorOnPrimary</item>
+        <item name="colorSecondary">@color/diveSdkColorSecondary</item>
+        <item name="colorSecondaryVariant">@color/diveSdkColorSecondaryVariant</item>
+        <item name="colorOnSecondary">@color/diveSdkColorOnSecondary</item>
+        <item name="android:colorBackground">@color/diveSdkColorBackground</item>
+        <item name="colorSurface">@color/diveSdkColorSurface</item>
+        <item name="colorOnBackground">@color/diveSdkColorOnBackground</item>
+        <item name="colorOnSurface">@color/diveSdkColorOnSurface</item>
+        <item name="colorError">@color/diveSdkColorError</item>
+        <item name="colorOnError">@color/diveSdkColorOnError</item>
+
+        <item name="textAppearanceHeadline1">@style/TextAppearance.DiveSDK.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.DiveSDK.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.DiveSDK.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.DiveSDK.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.DiveSDK.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.DiveSDK.Headline6</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.DiveSDK.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.DiveSDK.Body2</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.DiveSDK.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.DiveSDK.Subtitle2</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.DiveSDK.Caption</item>
+        <item name="textAppearanceButton">@style/TextAppearance.DiveSDK.Button</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.DiveSDK.Overline</item>
+
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.DiveSDK.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.DiveSDK.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.DiveSDK.LargeComponent</item>
+
+        <item name="materialButtonStyle">@style/Widget.DiveSDK.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.DiveSDK.Button.Outlined</item>
+    </style>
+</resources>
