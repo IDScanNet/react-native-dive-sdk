@@ -434,7 +434,7 @@ launchDive(options: DiveLaunchOptions): Promise<DiveResult>
 | Option | Type | Description |
 |---|---|---|
 | `token` | `string` | API token provided by IDScan |
-| `licenseKey` | `string` | Base64-encoded license key bound to your app's bundle ID |
+| `licenseKey` | `string` | License key bound to your app's bundle ID |
 | `configuration` | `DiveCaptureConfiguration` | **Required.** Document types, capture steps, and capture flags. See [DiveCaptureConfiguration](#divecaptureconfiguration) below. |
 | `baseUrl` | `string` | Optional. Custom DVS endpoint. Overrides `configureDiveEnvironment` for this call. |
 | `userAgent` | `string` | Optional. Custom User-Agent (Android only, ignored on iOS). Overrides `configureDiveEnvironment` for this call. |
@@ -782,17 +782,34 @@ The repo ships a runnable RN app under [example/](example/). It exercises both
 `launchDive` and `launchDiveOnline` and is the easiest way to validate your
 credentials end-to-end.
 
-```sh
-cd example
-npm install
-npm start                  # start Metro
-npm run ios                # iOS simulator / device
-npm run android            # Android device / emulator
-```
+### Quick start
 
-The example uses inline `sk_*` credentials for the DIVE Online flow — that's
-acceptable for a demo (see [DIVE Online → Demo / quick-start](#demo--quick-start-no-backend))
-but **must not** be used as a template for production builds.
+1. **Fill in your credentials** at the top of [`example/src/App.tsx`](example/src/App.tsx) —
+   `DIVE_SDK_TOKEN`, `DIVE_SDK_LICENSE_KEY`, `DIVE_ONLINE_TOKEN`,
+   `DIVE_ONLINE_INTEGRATION_ID` (per-platform), and `DIVE_ONLINE_APPLICANT_ID`.
+   The file ships with `YOUR_*` placeholders — see
+   [Accounts and credentials](#accounts-and-credentials) for how to obtain each
+   value.
+2. **Install and run:**
+
+   ```sh
+   cd example
+   npm install
+   npm start                  # start Metro
+
+   # in another terminal
+   cd ios && pod install && cd ..   # iOS only, first run
+   npm run ios                # iOS device (DIVE SDK does not run in the simulator)
+   npm run android            # Android device / emulator
+   ```
+
+See [example/README.md](example/README.md) for the full step-by-step guide,
+including how to mint a one-shot DIVE Online `applicantId` with `curl`.
+
+The example creates the DIVE Online applicant directly from the device using an
+`sk_*` token — that's acceptable for a demo (see
+[DIVE Online → Demo / quick-start](#demo--quick-start-no-backend)) but **must
+not** be used as a template for production builds.
 
 ---
 
