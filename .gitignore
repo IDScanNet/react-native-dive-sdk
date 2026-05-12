@@ -65,6 +65,7 @@ android/keystores/debug.keystore
 .yarn/
 yarn.lock
 package-lock.json
+!example-expo/package-lock.json
 
 # Expo
 .expo/
@@ -82,3 +83,10 @@ nitrogen/
 # Example app build artifacts
 example/android/.kotlin/
 example/.bundle/
+
+# Git worktrees
+.worktrees/
+
+# Expo config plugin build output
+plugin/build/
+plugin/tsconfig.tsbuildinfo

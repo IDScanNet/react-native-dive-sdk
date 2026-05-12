@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "DIVE Expo Demo",
+    "slug": "dive-expo-demo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.example.divesdk",
+      "supportsTablet": false,
+      "appleTeamId": "Q724K3G7G5"
+    },
+    "android": {
+      "package": "com.example.divesdk"
+    },
+    "plugins": [
+      [
+        "react-native-dive-sdk",
+        {
+          "applyFmtWorkaround": true
+        }
+      ]
+    ]
+  }
+}

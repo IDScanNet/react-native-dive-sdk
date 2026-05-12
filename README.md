@@ -118,7 +118,7 @@ You need a **license key** bound to your app's bundle id / `applicationId`. Two 
 - Email **support@idscan.net** with the bundle id (iOS) and `applicationId`
   (Android) you intend to ship, and they will issue the license.
 
-You also need an `token` (DVS API token) provided alongside the license.
+You also need an `token` (DIVE API token) provided alongside the license.
 
 ### DIVE Online
 
@@ -219,9 +219,87 @@ Add equivalent overrides to `res/values-night/colors.xml` for dark mode.
 
 ---
 
+## Using with Expo
+
+`react-native-dive-sdk` includes an Expo config plugin that performs every
+native edit listed under **iOS Setup** and **Android Setup** during
+`npx expo prebuild`, so you don't need to touch `Podfile`, `Info.plist`,
+or `build.gradle` by hand.
+
+> **Expo Go is not supported.** The SDK ships native code, which Expo Go
+> cannot load. Use a development build (`npx expo run:ios` /
+> `npx expo run:android`) or an EAS build.
+
+After installing the package (see [Installation](#installation)), register
+the plugin in `app.json` (or `app.config.js`):
+
+```json
+{
+  "expo": {
+    "plugins": [
+      "react-native-dive-sdk"
+    ]
+  }
+}
+```
+
+To override defaults, pass an options object:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "react-native-dive-sdk",
+        {
+          "cameraPermission": "$(PRODUCT_NAME) needs the camera to scan your ID.",
+          "androidNdkVersion": "28.2.13676358"
+        }
+      ]
+    ]
+  }
+}
+```
+
+### Plugin options
+
+All options are optional; defaults work out of the box.
+
+| Option                   | Default                                                            | Effect                                                                      |
+| ------------------------ | ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `cameraPermission`       | `Camera access is required to scan identity documents`             | `NSCameraUsageDescription` in `Info.plist`                                  |
+| `photoLibraryPermission` | `Photo library access is required to upload document images`       | `NSPhotoLibraryUsageDescription` in `Info.plist`                            |
+| `locationPermission`     | `DIVE SDK needs your location for verification purposes`           | `NSLocationWhenInUseUsageDescription` in `Info.plist`                       |
+| `applyFmtWorkaround`     | `true`                                                             | Adds the Xcode 26+ `fmt` `c++17` patch to `post_install`. Safe no-op on Xcode versions where the `fmt` pod target is absent. |
+| `androidNdkVersion`      | `28.2.13676358`                                                    | Forces `ndkVersion` in `android/build.gradle` (NDK 28+ required)            |
+
+If you set `ios.infoPlist.NS<…>UsageDescription` directly in `app.json`, that
+value is preserved unless you also pass the matching plugin option (which
+takes precedence).
+
+### Prebuild and run
+
+```sh
+npx expo prebuild              # generate ios/ and android/ projects
+npx expo run:ios               # development build on iOS
+npx expo run:android           # development build on Android
+```
+
+Re-running `npx expo prebuild` is idempotent — the plugin will not duplicate
+its edits on subsequent runs.
+
+### Working example
+
+A complete runnable Expo demo lives at [`example-expo/`](example-expo/) —
+same JS code as the bare [`example/`](example/) but driven through
+`expo prebuild` instead of manual native edits. Use it as a copy-paste
+template for adopting the SDK in a fresh Expo project.
+
+---
+
 ## Usage
 
-### DIVE SDK (server verification via DVS)
+### DIVE SDK (server verification via DIVE)
 
 ```tsx
 import { launchDive } from 'react-native-dive-sdk';
@@ -272,7 +350,7 @@ if (result.type === 'success') {
 
 ### Multi-environment setup
 
-Use `configureDiveEnvironment` once at app startup to set the default DVS endpoint.
+Use `configureDiveEnvironment` once at app startup to set the default DIVE endpoint.
 All subsequent `launchDive` calls will use it automatically — no need to pass `baseUrl` every time.
 
 ```tsx
@@ -282,7 +360,7 @@ import { configureDiveEnvironment } from 'react-native-dive-sdk';
 // Point the SDK at your backend. Replace with your actual endpoint.
 // Common values:
 configureDiveEnvironment({
-  baseUrl: 'https://dvs.idscan.net/api/v3',
+  baseUrl: 'https://dive.idscan.net/api/v3',
   // userAgent: 'MyApp/1.0',  // Android only — set a custom User-Agent if required
 });
 ```
@@ -304,7 +382,7 @@ const result = await launchDive({
   token: 'YOUR_API_TOKEN',
   licenseKey: 'YOUR_LICENSE_KEY',
   configuration,
-  baseUrl: 'https://dvs.idscan.net/api/v3', // overrides configureDiveEnvironment for this call
+  baseUrl: 'https://dive.idscan.net/api/v3', // overrides configureDiveEnvironment for this call
 });
 ```
 
@@ -424,7 +502,7 @@ function MyScreen() {
 
 ### `launchDive(options)`
 
-Launches **DIVE SDK** (server verification via DVS). Returns a promise that
+Launches **DIVE SDK** (server verification via DIVE). Returns a promise that
 resolves when the user completes, cancels, or an error occurs.
 
 ```ts
@@ -436,7 +514,7 @@ launchDive(options: DiveLaunchOptions): Promise<DiveResult>
 | `token` | `string` | API token provided by IDScan |
 | `licenseKey` | `string` | License key bound to your app's bundle ID |
 | `configuration` | `DiveCaptureConfiguration` | **Required.** Document types, capture steps, and capture flags. See [DiveCaptureConfiguration](#divecaptureconfiguration) below. |
-| `baseUrl` | `string` | Optional. Custom DVS endpoint. Overrides `configureDiveEnvironment` for this call. |
+| `baseUrl` | `string` | Optional. Custom DIVE endpoint. Overrides `configureDiveEnvironment` for this call. |
 | `userAgent` | `string` | Optional. Custom User-Agent (Android only, ignored on iOS). Overrides `configureDiveEnvironment` for this call. |
 | `theme` | `DiveTheme` | Optional visual overrides (accent colour, button text colour, font size) |
 | `ios` | `DiveIosOptions` | Optional iOS-only capture knobs — see [Platform-specific options](#platform-specific-options) |
@@ -446,7 +524,7 @@ launchDive(options: DiveLaunchOptions): Promise<DiveResult>
 
 ### `configureDiveEnvironment(env)`
 
-Sets the default DVS endpoint for all subsequent `launchDive` calls. Call once at app startup.
+Sets the default DIVE endpoint for all subsequent `launchDive` calls. Call once at app startup.
 
 ```ts
 configureDiveEnvironment(env: DiveEnvironment): void
@@ -455,7 +533,7 @@ getDiveEnvironment(): DiveEnvironment
 
 | Field | Type | Description |
 |---|---|---|
-| `baseUrl` | `string` | Default DVS base URL. Used when `launchDive` does not supply `baseUrl`. |
+| `baseUrl` | `string` | Default DIVE base URL. Used when `launchDive` does not supply `baseUrl`. |
 | `userAgent` | `string` | Default User-Agent (Android only). Used when `launchDive` does not supply `userAgent`. |
 
 ---
@@ -625,18 +703,18 @@ Android DIVE SDK:
 
 | Value | Behaviour |
 |---|---|
-| `'server'` *(default)* | Capture on device, send to your DVS server, receive `VerificationRequest` |
+| `'server'` *(default)* | Capture on device, send to your DIVE server, receive `VerificationRequest` |
 | `'local'` | Capture and run verification on device, return `VerificationResult` |
 | `'standalone'` | Capture only, return `VerificationData` — no verification step |
 
-**`verificationConfig`** toggles individual verification rules in the DVS
+**`verificationConfig`** toggles individual verification rules in the DIVE
 pipeline (Android only — iOS reads these from the server bundle). All flags are
 optional and default to the SDK's own defaults.
 
 | Flag | What it controls |
 |---|---|
 | `isOCREnabled` | Run OCR on document fields |
-| `isAddressCheckEnabled` | Cross-check the address fields against the DVS database |
+| `isAddressCheckEnabled` | Cross-check the address fields against the DIVE database |
 | `isCrossMatchRequired` | Require cross-match between document fields |
 | `isDMVEnabled` | Full DMV (US Department of Motor Vehicles) lookup |
 | `isDMVPartialEnabled` | Partial DMV lookup |
@@ -649,7 +727,7 @@ optional and default to the SDK's own defaults.
 | `isFaceRequiredOnDocument` | Reject documents without a face photo |
 | `faceVerification` | Match selfie against the document portrait (liveness + face match) |
 
-> Exact server-side behaviour of these flags is defined by IDScan's DVS
+> Exact server-side behaviour of these flags is defined by IDScan's DIVE
 > backend. See the upstream [DIVE-SDK-Android](https://github.com/IDScanNet/DIVE-SDK-Android)
 > README for canonical descriptions.
 
@@ -752,7 +830,7 @@ or per call via `baseUrl`.
 
 | Product | Default base URL |
 |---|---|
-| DIVE SDK (`launchDive`) | `https://dvs.idscan.net/api/v3` |
+| DIVE SDK (`launchDive`) | `https://dive.idscan.net/api/v3` |
 | DIVE Online (`launchDiveOnline`) | `https://api-diveonline.idscan.net/api/v2/` |
 
 Resolution priority for `launchDive`:
@@ -819,7 +897,7 @@ When you ship a DIVE SDK or DIVE Online integration you are processing personal
 data and biometrics. The relevant facts for App Store / Play Store submission:
 
 - **Camera and document images** are captured on device and uploaded to the
-  IDScan backend (DVS or DIVE Online) for verification. The upload destination
+  IDScan backend (DIVE SDK or DIVE Online) for verification. The upload destination
   is the `baseUrl` you configure.
 - **Liveness check** uses the front camera (and TrueDepth / ARKit on supporting
   iOS devices). According to the upstream SDK documentation, the biometric
