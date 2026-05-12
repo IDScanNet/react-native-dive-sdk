@@ -37,7 +37,7 @@
   ],
   "scripts": {
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib plugin/build",
-    "prepare": "bob build && yarn build:plugin",
+    "prepare": "bob build && tsc --build plugin",
     "build:plugin": "tsc --build plugin",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\""

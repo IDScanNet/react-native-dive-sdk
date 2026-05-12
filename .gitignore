@@ -12,6 +12,7 @@ jsconfig.json
 # Xcode
 #
 build/
+!plugin/build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -62,8 +63,7 @@ android/app/libs
 android/keystores/debug.keystore
 
 # Yarn
-.yarn/*
-!.yarn/releases
+.yarn/install-state.gz
 yarn.lock
 package-lock.json
 !example-expo/package-lock.json
@@ -89,5 +89,4 @@ example/.bundle/
 .worktrees/
 
 # Expo config plugin build output
-plugin/build/
 plugin/tsconfig.tsbuildinfo
