@@ -62,7 +62,8 @@ android/app/libs
 android/keystores/debug.keystore
 
 # Yarn
-.yarn/
+.yarn/*
+!.yarn/releases
 yarn.lock
 package-lock.json
 !example-expo/package-lock.json
