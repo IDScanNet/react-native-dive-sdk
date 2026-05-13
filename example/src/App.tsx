@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Platform,
   Image,
+  TextInput,
 } from 'react-native';
 import {
   launchDive,
@@ -205,6 +206,7 @@ export default function App() {
   const [result, setResult] = useState<DiveResult | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [selectedThemeIndex, setSelectedThemeIndex] = useState(0);
+  const [applicantId, setApplicantId] = useState(DIVE_ONLINE_APPLICANT_ID);
 
   const selectedPreset = THEME_PRESETS[selectedThemeIndex]!;
 
@@ -248,7 +250,7 @@ export default function App() {
         token: DIVE_ONLINE_TOKEN,
         integrationId: DIVE_ONLINE_INTEGRATION_ID,
         baseUrl: DIVE_ONLINE_BASE_URL,
-        applicantId: DIVE_ONLINE_APPLICANT_ID,
+        applicantId: applicantId.trim(),
         theme: selectedPreset.theme,
       });
       setResult(res);
@@ -300,6 +302,21 @@ export default function App() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {activeTab === 'online' && (
+          <View style={{ marginBottom: 16 }}>
+            <Text style={styles.sectionLabel}>Applicant ID</Text>
+            <TextInput
+              style={styles.textInput}
+              value={applicantId}
+              onChangeText={setApplicantId}
+              placeholder="Paste applicant UUID"
+              autoCapitalize="none"
+              autoCorrect={false}
+              placeholderTextColor="#aaa"
+            />
+          </View>
+        )}
 
         <TouchableOpacity
           style={[styles.button, { backgroundColor: selectedPreset.color }]}
@@ -413,6 +430,17 @@ const styles = StyleSheet.create({
   },
   resultText: { fontSize: 14, color: '#555', marginBottom: 4 },
   errorText: { fontSize: 14, color: '#B3261E' },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    backgroundColor: '#fff',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    color: '#222',
+  },
 });
 
 const resultStyles = StyleSheet.create({
