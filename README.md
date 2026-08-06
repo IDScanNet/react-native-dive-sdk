@@ -104,12 +104,28 @@ npm install IDScanNet/react-native-dive-sdk#v0.2.0
 
 ---
 
-## Accounts and credentials
+## Credentials and security
 
-Both products require credentials issued by IDScan. Request them from
-**support@idscan.net**.
+Both products authenticate with prefixed bearer tokens: **`pk_…`** (public,
+limited scope, intended for clients) and **`sk_…`** (secret, full API access
+under your account). Anything passed to `launchDive` or `launchDiveOnline` ships
+inside the IPA/APK and is extractable, so only `pk_…` belongs there.
 
-### DIVE SDK (`launchDive`)
+*Do not share your secret API keys in publicly accessible areas such as GitHub,
+client-side code, and so forth.*
+
+| Credential | Product | In the app? | Notes |
+|---|---|---|---|
+| `licenseKey` | DIVE SDK | Yes | Base64 blob. Bound to your bundle id / `applicationId` — useless in another app |
+| `token` (`pk_…`) | DIVE SDK | Yes | Public token from <https://mydive.idscan.net/> `Access Tokens` section |
+| `token` (`pk_…`) | DIVE Online | Yes | Scoped to a Bundle; cannot create applicants |
+| `integrationId` | DIVE Online | Yes | Not a secret; one per platform Bundle |
+| `applicantId` | DIVE Online | Yes (received at runtime) | Created by your backend, then handed to the app |
+| `token` (`sk_…`) | Both | **No — server only** | Full DIVE API access; for DIVE Online also creates applicants and spends quota |
+
+To rotate a token you believe has been extracted, contact **support@idscan.net**.
+
+### Obtaining credentials — DIVE SDK (`launchDive`)
 
 You need a **license key** bound to your app's bundle id / `applicationId`. Two ways to obtain it:
 
@@ -118,9 +134,12 @@ You need a **license key** bound to your app's bundle id / `applicationId`. Two 
 - Email **support@idscan.net** with the bundle id (iOS) and `applicationId`
   (Android) you intend to ship, and they will issue the license.
 
-You also need an `token` (DIVE API token) provided alongside the license.
+You also need a **public DIVE API token** (`pk_…`) — that is the value you pass
+as `token`. Generate it on the **Access Tokens** page of
+<https://mydive.idscan.net/>, or request it from support. Do not put a secret
+key (`sk_…`) in the app; the SDK does not need one.
 
-### DIVE Online
+### Obtaining credentials — DIVE Online (`launchDiveOnline`)
 
 Sign up at the DIVE Online portal (request access via support@idscan.net). In
 the portal you need to:
@@ -129,6 +148,9 @@ the portal you need to:
 2. Create a **Bundle** for each platform you ship — one bound to your iOS
    bundle id, one bound to your Android `applicationId`. Each Bundle has its
    own `integrationId` (UUID). Use the right one at runtime via `Platform.OS`.
+
+The applicant-creation call that needs `sk_*` is described under
+[DIVE Online → Production setup](#production-setup-with-a-backend-proxy).
 
 ---
 
@@ -333,7 +355,7 @@ const configuration: DiveCaptureConfiguration = {
 };
 
 const result = await launchDive({
-  token: 'YOUR_API_TOKEN',
+  token: 'pk_YOUR_PUBLIC_TOKEN',
   licenseKey: 'YOUR_LICENSE_KEY',
   configuration,
 });
@@ -369,7 +391,7 @@ Then launch as usual — `baseUrl` is resolved from the global environment:
 
 ```tsx
 const result = await launchDive({
-  token: 'YOUR_API_TOKEN',
+  token: 'pk_YOUR_PUBLIC_TOKEN',
   licenseKey: 'YOUR_LICENSE_KEY',
   configuration,
 });
@@ -379,7 +401,7 @@ A **per-call** `baseUrl` overrides the global default for that single call:
 
 ```tsx
 const result = await launchDive({
-  token: 'YOUR_API_TOKEN',
+  token: 'pk_YOUR_PUBLIC_TOKEN',
   licenseKey: 'YOUR_LICENSE_KEY',
   configuration,
   baseUrl: 'https://dive.idscan.net/api/v3', // overrides configureDiveEnvironment for this call
@@ -392,10 +414,11 @@ const result = await launchDive({
 
 ### DIVE Online
 
-DIVE Online uses two token types — `pk_*` (publishable) and `sk_*` (secret).
 The mobile SDK never creates applicants: an applicant is created via
 `POST {baseUrl}/private/Applicants` with an `sk_*` token, and the resulting
 `applicantId` is then passed to `launchDiveOnline` together with a `pk_*` token.
+See [Credentials and security](#credentials-and-security) for which token goes
+where.
 
 How `sk_*` is handled depends on whether you're shipping to production or
 running a demo:
@@ -511,8 +534,8 @@ launchDive(options: DiveLaunchOptions): Promise<DiveResult>
 
 | Option | Type | Description |
 |---|---|---|
-| `token` | `string` | API token provided by IDScan |
-| `licenseKey` | `string` | License key bound to your app's bundle ID |
+| `token` | `string` | **Public** DIVE API token (`pk_…`) issued by IDScan. Secret keys (`sk_…`) MUST stay on your server — see [Credentials and security](#credentials-and-security). |
+| `licenseKey` | `string` | License key bound to your app's bundle ID / `applicationId` |
 | `configuration` | `DiveCaptureConfiguration` | **Required.** Document types, capture steps, and capture flags. See [DiveCaptureConfiguration](#divecaptureconfiguration) below. |
 | `baseUrl` | `string` | Optional. Custom DIVE endpoint. Overrides `configureDiveEnvironment` for this call. |
 | `userAgent` | `string` | Optional. Custom User-Agent (Android only, ignored on iOS). Overrides `configureDiveEnvironment` for this call. |
@@ -549,7 +572,7 @@ launchDiveOnline(options: DiveOnlineLaunchOptions): Promise<DiveResult>
 
 | Option | Type | Description |
 |---|---|---|
-| `token` | `string` | **Publishable** token (`pk_*`). Secret tokens (`sk_*`) MUST stay on your server. |
+| `token` | `string` | **Publishable** token (`pk_*`). Secret tokens (`sk_*`) MUST stay on your server — see [Credentials and security](#credentials-and-security). |
 | `integrationId` | `string` | Integration UUID (different per platform — get from DIVE Online dashboard) |
 | `baseUrl` | `string` | Base URL of your DIVE Online API endpoint |
 | `applicantId` | `string` | Applicant id returned by your backend after `POST /private/Applicants` |
@@ -639,7 +662,7 @@ Pass `theme` inside the launch options:
 import { launchDive } from 'react-native-dive-sdk';
 
 const result = await launchDive({
-  token: 'YOUR_API_TOKEN',
+  token: 'pk_YOUR_PUBLIC_TOKEN',
   licenseKey: 'YOUR_LICENSE_KEY',
   theme: {
     accentColor: '#E91E63',    // hot pink buttons & highlights
@@ -649,7 +672,7 @@ const result = await launchDive({
 
 // Force white text on a light accent colour (Android):
 const result2 = await launchDive({
-  token: 'YOUR_API_TOKEN',
+  token: 'pk_YOUR_PUBLIC_TOKEN',
   licenseKey: 'YOUR_LICENSE_KEY',
   theme: {
     accentColor: '#4CAF50',
@@ -866,7 +889,7 @@ credentials end-to-end.
    `DIVE_SDK_TOKEN`, `DIVE_SDK_LICENSE_KEY`, `DIVE_ONLINE_TOKEN`,
    `DIVE_ONLINE_INTEGRATION_ID` (per-platform), and `DIVE_ONLINE_APPLICANT_ID`.
    The file ships with `YOUR_*` placeholders — see
-   [Accounts and credentials](#accounts-and-credentials) for how to obtain each
+   [Credentials and security](#credentials-and-security) for how to obtain each
    value.
 2. **Install and run:**
 

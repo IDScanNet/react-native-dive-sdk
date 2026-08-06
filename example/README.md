@@ -21,7 +21,7 @@ schema rendered live.
 - **Android** — Android Studio with NDK 28+, an emulator or device running
   Android 7.0+ (API 24)
 - Credentials issued by IDScan — see the root
-  [README → Accounts and credentials](../README.md#accounts-and-credentials)
+  [README → Credentials and security](../README.md#credentials-and-security)
 
 ## 1. Configure your credentials
 
@@ -29,7 +29,7 @@ Open [`src/App.tsx`](src/App.tsx) and replace the `YOUR_*` placeholders at the
 top of the file:
 
 ```ts
-const DIVE_SDK_TOKEN = 'YOUR_DIVE_SDK_TOKEN';
+const DIVE_SDK_TOKEN = 'pk_YOUR_PUBLIC_TOKEN';
 const DIVE_SDK_LICENSE_KEY = 'YOUR_DIVE_SDK_LICENSE_KEY';
 
 const DIVE_ONLINE_TOKEN = 'pk_YOUR_PUBLISHABLE_TOKEN';
@@ -43,7 +43,7 @@ const DIVE_ONLINE_APPLICANT_ID = 'YOUR_APPLICANT_ID';
 
 | Placeholder | Where to get it |
 |---|---|
-| `DIVE_SDK_TOKEN` | DVS API token issued by IDScan support, alongside the license |
+| `DIVE_SDK_TOKEN` | **Public** DIVE API token (`pk_*`) from the [DIVE SDK portal](https://mydive.idscan.net/) or IDScan support. Never use a secret (`sk_*`) token here. |
 | `DIVE_SDK_LICENSE_KEY` | license key bound to the example's identifier — iOS `PRODUCT_BUNDLE_IDENTIFIER` and Android `applicationId` are both `com.example.divesdk`. Generate the license on the [DIVE SDK portal](https://mydive.idscan.net/) or request it via support@idscan.net. If you change the bundle id / `applicationId` you must regenerate the license. |
 | `DIVE_ONLINE_TOKEN` | Publishable token (`pk_*`) from the DIVE Online portal |
 | `DIVE_ONLINE_INTEGRATION_ID` | Two integration UUIDs from the DIVE Online portal — one Bundle bound to the iOS bundle id, one bound to the Android `applicationId` |
