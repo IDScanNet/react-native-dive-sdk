@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Set to false in your app's res/values/ to disable the Android 15+ edge-to-edge
+         inset workaround applied by DiveWindowInsets. -->
+    <bool name="dive_sdk_apply_system_bar_insets">true</bool>
+</resources>

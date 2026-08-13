@@ -77,6 +77,8 @@ class DiveSDKActivity : AppCompatActivity() {
         window.decorView.viewTreeObserver.addOnGlobalLayoutListener {
             applyExactButtonColors(window.decorView, primaryColor, onPrimaryColor)
         }
+        // Before launchSDK() so the container is already inset when the first fragment lays out.
+        DiveWindowInsets.install(this)
         if (savedInstanceState == null) {
             launchSDK()
         }
