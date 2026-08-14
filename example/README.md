@@ -84,7 +84,6 @@ This pulls `react-native-dive-sdk` from GitHub
 (`IDScanNet/react-native-dive-sdk`) — see
 [`package.json`](package.json). To test against an unreleased version of the
 wrapper, change that line to a local path (`../`) and follow
-[CLAUDE.md → step 6](../CLAUDE.md) to set up Metro for a local SDK path.
 
 ## 3. Start Metro
 
