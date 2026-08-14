@@ -154,12 +154,6 @@ or the SDK error code on failure.
 Every result is logged via `console.log('[App] ...')` — open the Metro console
 or React Native DevTools to inspect the raw payload.
 
-## Build a standalone APK / IPA
-
-Debug builds rely on the Metro dev server at runtime. To produce a self-contained
-APK that boots without Metro, follow the
-[CLAUDE.md → "Standalone APK with bundled JS"](../CLAUDE.md) instructions.
-
 ## Troubleshooting
 
 For build failures, check the root
