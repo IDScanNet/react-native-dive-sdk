@@ -18,7 +18,7 @@
 #   end
 
 DIVE_SDK_SPM_URL   = "https://github.com/IDScanNet/DIVE-SDK-iOS.git"
-DIVE_SDK_SPM_VERSION = "3.251121.1"
+DIVE_SDK_SPM_VERSION = "3.261014.1"
 EMBED_SCRIPT_NAME  = "[DiveSDK] Embed IDScanCapture.framework"
 
 # ---------------------------------------------------------------------------

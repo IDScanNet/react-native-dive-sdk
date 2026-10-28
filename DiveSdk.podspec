@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   spm_dependency(
     s,
     url: "https://github.com/IDScanNet/DIVE-SDK-iOS.git",
-    requirement: { kind: "upToNextMajorVersion", minimumVersion: "3.251121.1" },
+    requirement: { kind: "upToNextMajorVersion", minimumVersion: "3.261014.1" },
     products: ["DIVESDK", "DIVEOnlineSDK"]
   )
 end

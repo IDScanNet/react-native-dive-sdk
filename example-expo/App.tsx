@@ -64,13 +64,16 @@ const DIVE_CAPTURE_CONFIG: DiveCaptureConfiguration = {
   autoStart: false,
   autoSubmit: false,
   isShowDocumentTypeSelect: false,
-  realFaceMode: 'auto',
   documentTypes: [
     {
       isActive: true,
       type: 'ID',
       steps: [
-        { type: 'front', name: 'Document Front', mode: { uploader: true, video: true } },
+        {
+          type: 'front',
+          name: 'Document Front',
+          mode: { uploader: true, video: true },
+        },
         { type: 'back', name: 'back', mode: { uploader: true, video: true } },
         { type: 'face', name: 'Face', mode: { uploader: true, video: true } },
       ],
@@ -79,7 +82,11 @@ const DIVE_CAPTURE_CONFIG: DiveCaptureConfiguration = {
       isActive: true,
       type: 'Passport',
       steps: [
-        { type: 'front', name: 'Document Front', mode: { uploader: true, video: true } },
+        {
+          type: 'front',
+          name: 'Document Front',
+          mode: { uploader: true, video: true },
+        },
         { type: 'face', name: 'Face', mode: { uploader: true, video: true } },
       ],
     },
@@ -87,7 +94,11 @@ const DIVE_CAPTURE_CONFIG: DiveCaptureConfiguration = {
       isActive: true,
       type: 'PassportCard',
       steps: [
-        { type: 'front', name: 'Document Front', mode: { uploader: true, video: true } },
+        {
+          type: 'front',
+          name: 'Document Front',
+          mode: { uploader: true, video: true },
+        },
         { type: 'mrz', name: 'MRZ', mode: { uploader: true, video: true } },
         { type: 'face', name: 'Face', mode: { uploader: true, video: true } },
       ],
@@ -96,7 +107,11 @@ const DIVE_CAPTURE_CONFIG: DiveCaptureConfiguration = {
       isActive: true,
       type: 'GreenCard',
       steps: [
-        { type: 'front', name: 'Document Front', mode: { uploader: true, video: true } },
+        {
+          type: 'front',
+          name: 'Document Front',
+          mode: { uploader: true, video: true },
+        },
         { type: 'mrz', name: 'MRZ', mode: { uploader: true, video: true } },
         { type: 'face', name: 'Face', mode: { uploader: true, video: true } },
       ],
@@ -105,7 +120,11 @@ const DIVE_CAPTURE_CONFIG: DiveCaptureConfiguration = {
       isActive: true,
       type: 'InternationalId',
       steps: [
-        { type: 'front', name: 'Document Front', mode: { uploader: true, video: true } },
+        {
+          type: 'front',
+          name: 'Document Front',
+          mode: { uploader: true, video: true },
+        },
         { type: 'mrz', name: 'MRZ', mode: { uploader: true, video: true } },
         { type: 'face', name: 'Face', mode: { uploader: true, video: true } },
       ],
@@ -123,23 +142,33 @@ function formatFieldName(key: string): string {
 }
 
 function isBase64Image(value: string): boolean {
-  return value.startsWith('data:image/') || (value.length > 200 && /^[A-Za-z0-9+/]+=*$/.test(value));
+  return (
+    value.startsWith('data:image/') ||
+    (value.length > 200 && /^[A-Za-z0-9+/]+=*$/.test(value))
+  );
 }
 
-type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+type JsonValue =
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 function ResultRow({ label, value }: { label: string; value: JsonValue }) {
   if (value === null || value === undefined || value === '') return null;
 
   if (typeof value === 'object' && !Array.isArray(value)) {
-    const entries = Object.entries(value).filter(([, v]) => v !== null && v !== undefined && v !== '');
+    const entries = Object.entries(value).filter(
+      ([, v]) => v !== null && v !== undefined && v !== ''
+    );
     if (entries.length === 0) return null;
     return (
       <View style={resultStyles.group}>
         <Text style={resultStyles.groupLabel}>{label}</Text>
         <View style={resultStyles.groupBody}>
           {entries.map(([k, v]) => (
-            <ResultRow key={k} label={formatFieldName(k)} value={v as JsonValue} />
+            <ResultRow
+              key={k}
+              label={formatFieldName(k)}
+              value={v as JsonValue}
+            />
           ))}
         </View>
       </View>
@@ -153,7 +182,11 @@ function ResultRow({ label, value }: { label: string; value: JsonValue }) {
         <Text style={resultStyles.groupLabel}>{label}</Text>
         <View style={resultStyles.groupBody}>
           {value.map((item, i) => (
-            <ResultRow key={i} label={`Item ${i + 1}`} value={item as JsonValue} />
+            <ResultRow
+              key={i}
+              label={`Item ${i + 1}`}
+              value={item as JsonValue}
+            />
           ))}
         </View>
       </View>
@@ -161,16 +194,23 @@ function ResultRow({ label, value }: { label: string; value: JsonValue }) {
   }
 
   if (typeof value === 'string' && isBase64Image(value)) {
-    const uri = value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+    const uri = value.startsWith('data:')
+      ? value
+      : `data:image/jpeg;base64,${value}`;
     return (
       <View style={resultStyles.row}>
         <Text style={resultStyles.rowLabel}>{label}</Text>
-        <Image source={{ uri }} style={resultStyles.image} resizeMode="contain" />
+        <Image
+          source={{ uri }}
+          style={resultStyles.image}
+          resizeMode="contain"
+        />
       </View>
     );
   }
 
-  const display = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value);
+  const display =
+    typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value);
 
   return (
     <View style={resultStyles.row}>
@@ -181,7 +221,9 @@ function ResultRow({ label, value }: { label: string; value: JsonValue }) {
 }
 
 function FullResultView({ data }: { data: Record<string, JsonValue> }) {
-  const entries = Object.entries(data).filter(([, v]) => v !== null && v !== undefined && v !== '');
+  const entries = Object.entries(data).filter(
+    ([, v]) => v !== null && v !== undefined && v !== ''
+  );
   if (entries.length === 0) return null;
   return (
     <View>
@@ -192,11 +234,23 @@ function FullResultView({ data }: { data: Record<string, JsonValue> }) {
   );
 }
 
-const THEME_PRESETS: { label: string; theme: DiveTheme | undefined; color: string }[] = [
+const THEME_PRESETS: {
+  label: string;
+  theme: DiveTheme | undefined;
+  color: string;
+}[] = [
   { label: 'Default', theme: undefined, color: '#0067F5' },
   { label: 'Pink', theme: { accentColor: '#E91E63' }, color: '#E91E63' },
-  { label: 'Green', theme: { accentColor: '#4CAF50', onPrimaryColor: '#FFFFFF' }, color: '#4CAF50' },
-  { label: 'Orange', theme: { accentColor: '#FF9800', onPrimaryColor: '#FFFFFF' }, color: '#FF9800' },
+  {
+    label: 'Green',
+    theme: { accentColor: '#4CAF50', onPrimaryColor: '#FFFFFF' },
+    color: '#4CAF50',
+  },
+  {
+    label: 'Orange',
+    theme: { accentColor: '#FF9800', onPrimaryColor: '#FFFFFF' },
+    color: '#FF9800',
+  },
 ];
 
 export default function App() {
@@ -230,7 +284,11 @@ export default function App() {
         configuration: DIVE_CAPTURE_CONFIG,
         theme: selectedPreset.theme,
       });
-      console.log('[App] handleLaunchDive: result received, type=', res.type, JSON.stringify(res));
+      console.log(
+        '[App] handleLaunchDive: result received, type=',
+        res.type,
+        JSON.stringify(res)
+      );
       setResult(res);
     } catch (e) {
       console.error('[App] handleLaunchDive: unexpected exception', e);
@@ -265,17 +323,33 @@ export default function App() {
       <View style={[styles.tabBar, { backgroundColor: selectedPreset.color }]}>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'offline' && styles.activeTab]}
-          onPress={() => { setActiveTab('offline'); setResult(null); }}
+          onPress={() => {
+            setActiveTab('offline');
+            setResult(null);
+          }}
         >
-          <Text style={[styles.tabText, activeTab === 'offline' && styles.activeTabText]}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'offline' && styles.activeTabText,
+            ]}
+          >
             DIVE SDK
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'online' && styles.activeTab]}
-          onPress={() => { setActiveTab('online'); setResult(null); }}
+          onPress={() => {
+            setActiveTab('online');
+            setResult(null);
+          }}
         >
-          <Text style={[styles.tabText, activeTab === 'online' && styles.activeTabText]}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'online' && styles.activeTabText,
+            ]}
+          >
             DIVE Online
           </Text>
         </TouchableOpacity>
@@ -294,7 +368,10 @@ export default function App() {
                 { backgroundColor: preset.color },
                 selectedThemeIndex === index && styles.themeSwatchSelected,
               ]}
-              onPress={() => { setSelectedThemeIndex(index); setResult(null); }}
+              onPress={() => {
+                setSelectedThemeIndex(index);
+                setResult(null);
+              }}
             >
               <Text style={styles.themeSwatchLabel}>{preset.label}</Text>
             </TouchableOpacity>
@@ -303,7 +380,9 @@ export default function App() {
 
         <TouchableOpacity
           style={[styles.button, { backgroundColor: selectedPreset.color }]}
-          onPress={activeTab === 'offline' ? handleLaunchDive : handleLaunchDiveOnline}
+          onPress={
+            activeTab === 'offline' ? handleLaunchDive : handleLaunchDiveOnline
+          }
           disabled={loading}
         >
           {loading ? (
@@ -323,7 +402,10 @@ export default function App() {
               <View
                 style={[
                   styles.progressFill,
-                  { width: `${uploadProgress * 100}%`, backgroundColor: selectedPreset.color },
+                  {
+                    width: `${uploadProgress * 100}%`,
+                    backgroundColor: selectedPreset.color,
+                  },
                 ]}
               />
             </View>
@@ -336,23 +418,30 @@ export default function App() {
             {result.type === 'success' && result.fullResult ? (
               <>
                 <Text style={styles.resultTitle}>Verification Results</Text>
-                <FullResultView data={result.fullResult as Record<string, JsonValue>} />
+                <FullResultView
+                  data={result.fullResult as Record<string, JsonValue>}
+                />
               </>
             ) : result.type === 'success' ? (
               <>
                 <Text style={styles.resultTitle}>Verification Complete</Text>
                 <View style={resultStyles.requestKeyBox}>
                   <Text style={resultStyles.requestKeyLabel}>Request ID</Text>
-                  <Text style={resultStyles.requestKeyValue}>{result.requestKey}</Text>
+                  <Text style={resultStyles.requestKeyValue}>
+                    {result.requestKey}
+                  </Text>
                 </View>
                 <Text style={resultStyles.requestKeyHint}>
-                  Use this Request ID to retrieve full verification results via API.
+                  Use this Request ID to retrieve full verification results via
+                  API.
                 </Text>
               </>
             ) : result.type === 'error' ? (
               <>
                 <Text style={styles.resultTitle}>Verification Failed</Text>
-                <Text style={styles.errorText}>[{result.code}] {result.message}</Text>
+                <Text style={styles.errorText}>
+                  [{result.code}] {result.message}
+                </Text>
               </>
             ) : (
               <Text style={styles.resultText}>User cancelled verification</Text>
@@ -372,9 +461,21 @@ const styles = StyleSheet.create({
   tabText: { color: 'rgba(255,255,255,0.7)', fontSize: 16, fontWeight: '600' },
   activeTabText: { color: '#fff' },
   content: { padding: 20 },
-  sectionLabel: { fontSize: 13, color: '#888', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
+  sectionLabel: {
+    fontSize: 13,
+    color: '#888',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   themeRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
-  themeSwatch: { flex: 1, borderRadius: 10, paddingVertical: 10, alignItems: 'center', opacity: 0.75 },
+  themeSwatch: {
+    flex: 1,
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    opacity: 0.75,
+  },
   themeSwatchSelected: { opacity: 1, transform: [{ scale: 1.05 }] },
   themeSwatchLabel: { color: '#fff', fontSize: 12, fontWeight: '700' },
   button: {
@@ -416,15 +517,53 @@ const styles = StyleSheet.create({
 });
 
 const resultStyles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
   rowLabel: { fontSize: 13, color: '#888', flex: 1, marginRight: 8 },
   rowValue: { fontSize: 13, color: '#222', flex: 2, textAlign: 'right' },
   group: { marginTop: 8 },
-  groupLabel: { fontSize: 13, fontWeight: '700', color: '#555', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.4 },
-  groupBody: { paddingLeft: 12, borderLeftWidth: 2, borderLeftColor: '#e0e0e0' },
-  image: { width: '100%', height: 120, marginTop: 4, borderRadius: 6, backgroundColor: '#f5f5f5' },
-  requestKeyBox: { backgroundColor: '#f0f4ff', borderRadius: 8, padding: 12, marginBottom: 8 },
-  requestKeyLabel: { fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 },
-  requestKeyValue: { fontSize: 14, color: '#1a1a2e', fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
+  groupLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#555',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  groupBody: {
+    paddingLeft: 12,
+    borderLeftWidth: 2,
+    borderLeftColor: '#e0e0e0',
+  },
+  image: {
+    width: '100%',
+    height: 120,
+    marginTop: 4,
+    borderRadius: 6,
+    backgroundColor: '#f5f5f5',
+  },
+  requestKeyBox: {
+    backgroundColor: '#f0f4ff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  requestKeyLabel: {
+    fontSize: 11,
+    color: '#888',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  requestKeyValue: {
+    fontSize: 14,
+    color: '#1a1a2e',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  },
   requestKeyHint: { fontSize: 12, color: '#888', lineHeight: 18 },
 });

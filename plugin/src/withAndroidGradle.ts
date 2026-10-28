@@ -3,7 +3,7 @@ import {
   withProjectBuildGradle,
 } from '@expo/config-plugins';
 
-const DEFAULT_NDK_VERSION = '28.2.13676358';
+const DEFAULT_NDK_VERSION = '29.0.14206865';
 const REQUIRED_MIN_SDK = 24;
 
 export type AndroidGradleProps = {

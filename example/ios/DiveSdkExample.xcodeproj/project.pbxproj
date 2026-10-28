@@ -112,7 +112,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
-				74F131EF8F26B4FAF7533DC5 /* [DiveSDK] Embed IDScanCapture.framework */,
+				C496471E122AD6E7C3B49603 /* [DiveSDK] Embed IDScanCapture.framework */,
 			);
 			buildRules = (
 			);
@@ -201,24 +201,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DiveSdkExample/Pods-DiveSdkExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		74F131EF8F26B4FAF7533DC5 /* [DiveSDK] Embed IDScanCapture.framework */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[DiveSDK] Embed IDScanCapture.framework";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\n\nFRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# All binary XCFrameworks that are transitive dependencies of DIVESDK /\n# DIVEOnlineSDK and must be embedded in the app bundle at runtime.\n# Format: \"<checkout-subdir>/<relative-path-to-xcframework>\"\nXCFRAMEWORKS=(\n  \"DIVE-SDK-iOS/Libs/IDScanCapture.xcframework\"\n  \"IDScanIDDetectorIOS/Libs/IDScanMRZDetector.xcframework\"\n  \"IDScanIDDetectorIOS/Libs/IDScanPDFDetector.xcframework\"\n)\n\n# CocoaPods resolves SPM packages into SourcePackages/checkouts/ relative\n# to the workspace DerivedData directory. Check standard locations.\nSOURCE_PKGS_CANDIDATES=(\n  \"${BUILD_DIR}/../../SourcePackages/checkouts\"\n  \"${PODS_ROOT}/../build/DerivedData/SourcePackages/checkouts\"\n)\n\nSOURCE_PKGS=\"\"\nfor CANDIDATE in \"${SOURCE_PKGS_CANDIDATES[@]}\"; do\n  if [ -d \"$CANDIDATE\" ]; then\n    SOURCE_PKGS=\"$(cd \"$CANDIDATE\" && pwd)\"\n    break\n  fi\ndone\n\nif [ -z \"$SOURCE_PKGS\" ]; then\n  echo \"warning: [DiveSDK] SourcePackages/checkouts not found — skipping embed.\"\n  exit 0\nfi\n\nmkdir -p \"${FRAMEWORKS_DIR}\"\n\nfor XCFW_REL in \"${XCFRAMEWORKS[@]}\"; do\n  XCFW_PATH=\"${SOURCE_PKGS}/${XCFW_REL}\"\n  FW_NAME=\"$(basename \"${XCFW_PATH}\" .xcframework).framework\"\n\n  if [ ! -d \"$XCFW_PATH\" ]; then\n    echo \"warning: [DiveSDK] ${XCFW_REL} not found at ${XCFW_PATH} — skipping.\"\n    continue\n  fi\n\n  # Select platform slice\n  if [[ \"${PLATFORM_NAME}\" == *simulator* ]]; then\n    SLICE_DIR=\"${XCFW_PATH}/ios-arm64_x86_64-simulator\"\n    [ -d \"$SLICE_DIR\" ] || SLICE_DIR=\"${XCFW_PATH}/ios-x86_64-simulator\"\n  else\n    SLICE_DIR=\"${XCFW_PATH}/ios-arm64\"\n  fi\n\n  FW_PATH=\"${SLICE_DIR}/${FW_NAME}\"\n  if [ ! -d \"$FW_PATH\" ]; then\n    echo \"warning: [DiveSDK] Slice not found at ${FW_PATH} — skipping.\"\n    continue\n  fi\n\n  # Sync without preserving read-only permissions from the xcframework\n  rsync -rl --delete \"${FW_PATH}/\" \"${FRAMEWORKS_DIR}/${FW_NAME}/\"\n  chmod -R u+w \"${FRAMEWORKS_DIR}/${FW_NAME}\"\n\n  if [ \"${CODE_SIGNING_REQUIRED:-NO}\" == \"YES\" ] && [ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" ]; then\n    codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \\\n      --preserve-metadata=identifier,entitlements \\\n      \"${FRAMEWORKS_DIR}/${FW_NAME}\"\n  fi\n\n  echo \"[DiveSDK] Embedded ${FW_NAME}\"\ndone\n";
-		};
 		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -240,6 +222,24 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		C496471E122AD6E7C3B49603 /* [DiveSDK] Embed IDScanCapture.framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[DiveSDK] Embed IDScanCapture.framework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\n\nFRAMEWORKS_DIR=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n# All binary XCFrameworks that are transitive dependencies of DIVESDK /\n# DIVEOnlineSDK and must be embedded in the app bundle at runtime.\n# Format: \"<checkout-subdir>/<relative-path-to-xcframework>\"\nXCFRAMEWORKS=(\n  \"DIVE-SDK-iOS/Libs/IDScanCapture.xcframework\"\n  \"IDScanIDDetectorIOS/Libs/IDScanMRZDetector.xcframework\"\n  \"IDScanIDDetectorIOS/Libs/IDScanPDFDetector.xcframework\"\n)\n\n# CocoaPods resolves SPM packages into SourcePackages/checkouts/ relative\n# to the workspace DerivedData directory. Check standard locations.\nSOURCE_PKGS_CANDIDATES=(\n  \"${BUILD_DIR}/../../SourcePackages/checkouts\"\n  \"${PODS_ROOT}/../build/DerivedData/SourcePackages/checkouts\"\n)\n\nSOURCE_PKGS=\"\"\nfor CANDIDATE in \"${SOURCE_PKGS_CANDIDATES[@]}\"; do\n  if [ -d \"$CANDIDATE\" ]; then\n    SOURCE_PKGS=\"$(cd \"$CANDIDATE\" && pwd)\"\n    break\n  fi\ndone\n\nif [ -z \"$SOURCE_PKGS\" ]; then\n  echo \"warning: [DiveSDK] SourcePackages/checkouts not found — skipping embed.\"\n  exit 0\nfi\n\nmkdir -p \"${FRAMEWORKS_DIR}\"\n\nfor XCFW_REL in \"${XCFRAMEWORKS[@]}\"; do\n  XCFW_PATH=\"${SOURCE_PKGS}/${XCFW_REL}\"\n  FW_NAME=\"$(basename \"${XCFW_PATH}\" .xcframework).framework\"\n\n  if [ ! -d \"$XCFW_PATH\" ]; then\n    echo \"warning: [DiveSDK] ${XCFW_REL} not found at ${XCFW_PATH} — skipping.\"\n    continue\n  fi\n\n  # Select platform slice\n  if [[ \"${PLATFORM_NAME}\" == *simulator* ]]; then\n    SLICE_DIR=\"${XCFW_PATH}/ios-arm64_x86_64-simulator\"\n    [ -d \"$SLICE_DIR\" ] || SLICE_DIR=\"${XCFW_PATH}/ios-x86_64-simulator\"\n  else\n    SLICE_DIR=\"${XCFW_PATH}/ios-arm64\"\n  fi\n\n  FW_PATH=\"${SLICE_DIR}/${FW_NAME}\"\n  if [ ! -d \"$FW_PATH\" ]; then\n    echo \"warning: [DiveSDK] Slice not found at ${FW_PATH} — skipping.\"\n    continue\n  fi\n\n  # Sync without preserving read-only permissions from the xcframework\n  rsync -rl --delete \"${FW_PATH}/\" \"${FRAMEWORKS_DIR}/${FW_NAME}/\"\n  chmod -R u+w \"${FRAMEWORKS_DIR}/${FW_NAME}\"\n\n  if [ \"${CODE_SIGNING_REQUIRED:-NO}\" == \"YES\" ] && [ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" ]; then\n    codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \\\n      --preserve-metadata=identifier,entitlements \\\n      \"${FRAMEWORKS_DIR}/${FW_NAME}\"\n  fi\n\n  echo \"[DiveSDK] Embedded ${FW_NAME}\"\ndone\n";
 		};
 		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

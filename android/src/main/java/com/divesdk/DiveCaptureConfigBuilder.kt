@@ -9,15 +9,23 @@ object DiveCaptureConfigBuilder {
     fun build(licenseKey: String, configJson: String): CaptureConfig {
         val root = JSONObject(configJson)
 
-        val realFaceMode = root.optString("realFaceMode", "auto")
-        val realFace = realFaceMode != "none"
+        // "realFaceMode" is ignored: RealFace configuration was removed in DIVE SDK 2.0.
+        val showSubmitBtn = if (root.has("showSubmitBtn")) {
+            root.optBoolean("showSubmitBtn", true)
+        } else {
+            !root.optBoolean("autoSubmit", false)
+        }
 
         val builder = CaptureConfig.builder(licenseKey)
-            .withHints(true)
-            .withDocumentTypeSelector(root.optBoolean("isShowDocumentTypeSelect", false))
+            .withPreviewAnimations(root.optBoolean("playPreviewAnimations", true))
+            .withShowDocumentTypeSelector(root.optBoolean("isShowDocumentTypeSelect", false))
             .withAutoStart(root.optBoolean("autoStart", false))
             .withAutoContinue(root.optBoolean("autoContinue", false))
-            .withAutoSubmit(root.optBoolean("autoSubmit", false))
+            .showSubmitBtn(showSubmitBtn)
+            .allowSubmitWithWarnings(root.optBoolean("allowSubmitWithWarnings", false))
+        if (root.has("autocaptureConfidence")) {
+            builder.withAutocaptureConfidence(root.optDouble("autocaptureConfidence").toFloat())
+        }
 
         val docs = root.optJSONArray("documentTypes")
             ?: throw IllegalArgumentException("documentTypes is required")
@@ -52,10 +60,11 @@ object DiveCaptureConfigBuilder {
 
             if (!hasFront && !hasBack && !hasFace) continue
 
+            // Native signature is (isUploadEnabled, isCameraEnabled).
             val flow = builder.withDocumentType(docType)
-            if (hasFront) flow.withFront(frontVideo, frontUploader)
-            if (hasBack) flow.withBack(backVideo, backUploader)
-            if (hasFace) flow.withFace(faceVideo, faceUploader, realFace)
+            if (hasFront) flow.withFront(frontUploader, frontVideo)
+            if (hasBack) flow.withBack(backUploader, backVideo)
+            if (hasFace) flow.withFace(faceUploader, faceVideo)
             flow.complete()
             addedAny = true
         }
@@ -73,6 +82,7 @@ object DiveCaptureConfigBuilder {
         "Passport" -> DocumentType.Passport
         "PassportCard" -> DocumentType.PassportCard
         "GreenCard" -> DocumentType.GreenCard
+        "EmploymentAuthorization" -> DocumentType.EmploymentAuthorization
         "InternationalId" -> DocumentType.InternationalId
         else -> throw IllegalArgumentException("Unknown document type: $name")
     }

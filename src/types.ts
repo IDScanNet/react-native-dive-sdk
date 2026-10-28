@@ -39,6 +39,7 @@ export type DiveDocumentType =
   | 'Passport'
   | 'PassportCard'
   | 'GreenCard'
+  | 'EmploymentAuthorization'
   | 'InternationalId';
 
 export interface DiveCaptureStepMode {
@@ -62,7 +63,23 @@ export interface DiveCaptureConfiguration {
   autoContinue?: boolean;
   autoStart?: boolean;
   autoSubmit?: boolean;
+  /**
+   * Show the Submit button on the summary screen (default: true). On Android
+   * it overrides `autoSubmit` when set, otherwise `!autoSubmit` is used; on
+   * iOS both keys are passed to the native SDK as is.
+   */
+  showSubmitBtn?: boolean;
+  /** Allow submitting when a captured image produced a warning (default: false) */
+  allowSubmitWithWarnings?: boolean;
+  /** Autocapture prediction confidence threshold 0–1 (default: 0.8) */
+  autocaptureConfidence?: number;
+  /** Play the preview animation at the start of each step (default: true) */
+  playPreviewAnimations?: boolean;
   isShowDocumentTypeSelect?: boolean;
+  /**
+   * @deprecated Ignored. RealFace configuration was removed from the native
+   * SDKs (iOS 3.261014.1, Android 2.x); kept so existing configs still compile.
+   */
   realFaceMode?: DiveRealFaceMode;
   documentTypes: DiveDocumentConfig[];
 }
@@ -168,9 +185,7 @@ export interface DiveOnlineLaunchOptions {
 
 // Discriminated union for SDK results
 export type DiveResult =
-  | DiveSuccessResult
-  | DiveErrorResult
-  | DiveCancelledResult;
+  DiveSuccessResult | DiveErrorResult | DiveCancelledResult;
 
 export interface DiveSuccessResult {
   type: 'success';

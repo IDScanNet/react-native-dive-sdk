@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_plugins_1 = require("@expo/config-plugins");
-const DEFAULT_NDK_VERSION = '28.2.13676358';
+const DEFAULT_NDK_VERSION = '29.0.14206865';
 const REQUIRED_MIN_SDK = 24;
 const withDiveSdkAndroidGradle = (config, props = {}) => {
     const ndkVersion = props.androidNdkVersion ?? DEFAULT_NDK_VERSION;

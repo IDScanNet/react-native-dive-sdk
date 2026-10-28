@@ -20,9 +20,9 @@ to map a wrapper release to the corresponding upstream changelog.
 
 | Platform | Native SDK | Version | Source of truth |
 |---|---|---|---|
-| iOS | [DIVE-SDK-iOS](https://github.com/IDScanNet/DIVE-SDK-iOS) (XCFramework — contains both DIVE SDK and DIVE Online) | `3.251121.1` | [`ios/dive_sdk_spm.rb`](ios/dive_sdk_spm.rb) |
-| Android | [DIVE-SDK-Android](https://github.com/IDScanNet/DIVE-SDK-Android) — `net.idscan.components.android:dvs` | `1.14.0` | [`android/build.gradle`](android/build.gradle) |
-| Android | [DIVE-ONLINE-SDK-Android](https://github.com/IDScanNet/DIVE-ONLINE-SDK-Android) — `net.idscan.components.android:dvsonline` | `1.14.0` | [`android/build.gradle`](android/build.gradle) |
+| iOS | [DIVE-SDK-iOS](https://github.com/IDScanNet/DIVE-SDK-iOS) (XCFramework — contains both DIVE SDK and DIVE Online) | `3.261014.1` | [`ios/dive_sdk_spm.rb`](ios/dive_sdk_spm.rb) |
+| Android | [DIVE-SDK-Android](https://github.com/IDScanNet/DIVE-SDK-Android) — `net.idscan.components.android:dvs` | `2.1.2` | [`android/build.gradle`](android/build.gradle) |
+| Android | [DIVE-ONLINE-SDK-Android](https://github.com/IDScanNet/DIVE-ONLINE-SDK-Android) — `net.idscan.components.android:dvsonline` | `2.1.2` | [`android/build.gradle`](android/build.gradle) |
 
 ## Updating the native SDK without updating the RN module
 
@@ -45,7 +45,7 @@ files — no changes to the JS/TS layer are required.
 **File:** [`ios/dive_sdk_spm.rb`](ios/dive_sdk_spm.rb), line 21
 
 ```ruby
-DIVE_SDK_SPM_VERSION = "3.251121.1"   # ← change this to the new tag
+DIVE_SDK_SPM_VERSION = "3.261014.1"   # ← change this to the new tag
 ```
 
 The tag must match a release tag in the
@@ -68,8 +68,8 @@ cd ios && pod install
 
 ```groovy
 dependencies {
-  implementation "net.idscan.components.android:dvs:1.14.0"       // ← bump this
-  implementation "net.idscan.components.android:dvsonline:1.14.0" // ← and/or this
+  implementation "net.idscan.components.android:dvs:2.1.2"       // ← bump this
+  implementation "net.idscan.components.android:dvsonline:2.1.2" // ← and/or this
 }
 ```
 
@@ -239,6 +239,29 @@ brand. All resource names are prefixed with `diveSdk` to avoid conflicts:
 
 Add equivalent overrides to `res/values-night/colors.xml` for dark mode.
 
+### 4. Edge-to-edge and system bar insets (Android 15+)
+
+No setup required — documented here because it is visible.
+
+Android 15 (API 35) forces edge-to-edge for apps targeting SDK 35 or higher, and Android 16
+removed the `android:windowOptOutEdgeToEdgeEnforcement` escape hatch. Some of the native DIVE
+SDK layouts are not yet inset-aware: their bottom action bars (Reset / Submit on the steps
+screen, Retake / Next on the manual-upload confirmation screen) are drawn under the system
+navigation bar and can be hard or impossible to tap.
+
+Until the native SDK handles this itself, the wrapper insets the DIVE capture UI above the
+navigation bar and the display cutout. The visible consequence on Android 15+ is a band in the
+theme's window background behind the navigation bar, and a slightly smaller camera preview
+area. This is a no-op for host apps targeting below SDK 35 — there the system decor already
+applies the insets — and it will be removed once the native SDK ships its own fix.
+
+To opt out and get the raw native behaviour back:
+
+```xml
+<!-- res/values/config.xml in your app -->
+<bool name="dive_sdk_apply_system_bar_insets">false</bool>
+```
+
 ---
 
 ## Using with Expo
@@ -275,7 +298,7 @@ To override defaults, pass an options object:
         "react-native-dive-sdk",
         {
           "cameraPermission": "$(PRODUCT_NAME) needs the camera to scan your ID.",
-          "androidNdkVersion": "28.2.13676358"
+          "androidNdkVersion": "29.0.14206865"
         }
       ]
     ]
@@ -293,7 +316,7 @@ All options are optional; defaults work out of the box.
 | `photoLibraryPermission` | `Photo library access is required to upload document images`       | `NSPhotoLibraryUsageDescription` in `Info.plist`                            |
 | `locationPermission`     | `DIVE SDK needs your location for verification purposes`           | `NSLocationWhenInUseUsageDescription` in `Info.plist`                       |
 | `applyFmtWorkaround`     | `true`                                                             | Adds the Xcode 26+ `fmt` `c++17` patch to `post_install`. Safe no-op on Xcode versions where the `fmt` pod target is absent. |
-| `androidNdkVersion`      | `28.2.13676358`                                                    | Forces `ndkVersion` in `android/build.gradle` (NDK 28+ required)            |
+| `androidNdkVersion`      | `29.0.14206865`                                                    | Forces `ndkVersion` in `android/build.gradle` (NDK 28+ required)            |
 
 If you set `ios.infoPlist.NS<…>UsageDescription` directly in `app.json`, that
 value is preserved unless you also pass the matching plugin option (which
@@ -590,8 +613,12 @@ interface DiveCaptureConfiguration {
   autoContinue?: boolean;           // auto-advance after each step
   autoStart?: boolean;              // skip the intro screen and start capture immediately
   autoSubmit?: boolean;             // submit automatically when all steps are done
+  showSubmitBtn?: boolean;          // show the Submit button on the summary screen (default: true)
+  allowSubmitWithWarnings?: boolean; // allow submitting images that produced a warning (default: false)
+  autocaptureConfidence?: number;   // autocapture prediction confidence 0–1 (default: 0.8)
+  playPreviewAnimations?: boolean;  // play the preview animation before each step (default: true)
   isShowDocumentTypeSelect?: boolean; // show the document type picker
-  realFaceMode?: 'auto' | 'all' | 'none'; // liveness check: 'auto' (default), 'all', or 'none'
+  realFaceMode?: 'auto' | 'all' | 'none'; // deprecated, ignored — removed from the native SDKs
   documentTypes: DiveDocumentConfig[];  // at least one entry required
 }
 
@@ -602,7 +629,8 @@ interface DiveDocumentConfig {
    * kept as a backwards-compatible alias. Use either — both work on iOS and
    * Android — but only one per documentTypes entry.
    */
-  type: 'ID' | 'DL' | 'Passport' | 'PassportCard' | 'GreenCard' | 'InternationalId';
+  type: 'ID' | 'DL' | 'Passport' | 'PassportCard' | 'GreenCard'
+      | 'EmploymentAuthorization' | 'InternationalId';
   steps: DiveCaptureStep[];
 }
 
@@ -639,8 +667,23 @@ iOS and Android use different names for the back-side capture step:
 
 The wrapper normalises this: on Android, `'pdf'` and `'mrz'` both trigger `withBack`, and the Android neural net auto-detects PDF417 / MRZ / plain back automatically. A step list written for iOS (`[front, pdf, face]`) therefore works correctly on Android without any changes.
 
+**Capture options across platforms**
+
+On iOS the whole `configuration` object is passed to `DIVESDK` as is; on
+Android the wrapper maps each key onto the native `CaptureConfig.Builder`:
+
+| JS option | iOS | Android |
+|---|---|---|
+| `showSubmitBtn` | passed as is | `showSubmitBtn(...)`; when omitted, `!autoSubmit` is used |
+| `autoSubmit` | passed as is | `showSubmitBtn(!autoSubmit)` unless `showSubmitBtn` is set |
+| `allowSubmitWithWarnings` | passed as is | `allowSubmitWithWarnings(...)` |
+| `autocaptureConfidence` | passed as is | `withAutocaptureConfidence(...)`; native default when omitted |
+| `playPreviewAnimations` | passed as is | `withPreviewAnimations(...)`, default `true` |
+| `type: 'EmploymentAuthorization'` | passed as is | `DocumentType.EmploymentAuthorization` |
+
 **Other Android notes:**
-- `realFaceMode: 'none'` disables liveness; any other value enables it globally for all face steps.
+- `mode.uploader` enables manual upload from a file, `mode.video` enables camera capture; if both are `false` the step is skipped.
+- `realFaceMode` is ignored on both platforms — the native SDKs no longer expose RealFace configuration.
 
 ---
 
@@ -874,6 +917,7 @@ For `launchDiveOnline`, `baseUrl` is required on every call.
 | SDK configuration | JS `configuration` object passed through | JS `configuration` object serialised to JSON Intent extra |
 | Native dependency delivery | SPM via CocoaPods (auto via `add_dive_sdk_spm`) | Maven Central (auto via Gradle) |
 | Location permission | Required for Online mode | Not required |
+| System bar insets (edge-to-edge) | Handled by the native SDK | Applied by the wrapper on the fragment container (Android 15+) — see [Edge-to-edge and system bar insets](#4-edge-to-edge-and-system-bar-insets-android-15) |
 
 ---
 
@@ -993,7 +1037,7 @@ your `android/build.gradle`:
 
 ```groovy
 ext {
-  ndkVersion = "28.2.13676358"
+  ndkVersion = "29.0.14206865"
 }
 ```
 

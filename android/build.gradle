@@ -68,8 +68,8 @@ android {
 
 dependencies {
   implementation "com.facebook.react:react-android"
-  implementation "net.idscan.components.android:dvs:1.14.0"
-  implementation "net.idscan.components.android:dvsonline:1.14.0"
+  implementation "net.idscan.components.android:dvs:2.1.2"
+  implementation "net.idscan.components.android:dvsonline:2.1.2"
   implementation "com.google.android.material:material:1.3.0"
   // WindowInsetsCompat.Type / .inset() need core 1.5+; material 1.3.0 only pulls ~1.3.x
   // transitively. 1.13.1 is the newest release still built against compileSdk 34, so it
